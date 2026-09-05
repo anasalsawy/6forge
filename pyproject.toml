@@ -1,22 +1,22 @@
 [project]
-name = "the_six_stage_forge"
+name = "deep_investigator_copy"
 version = "0.1.0"
-description = "the_six_stage_forge using crewAI"
+description = "deep_investigator_copy using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
     "crewai[file-processing,litellm,tools]>=1.15.11,<2.0.0",
-    "streamlit>=1.40,<2.0",
-    "PyYAML>=6.0",
+    "firecrawl-py<=4.6.0",
+    "mcp>=1.0,<2",
 ]
 
 [project.scripts]
-the_six_stage_forge = "the_six_stage_forge.main:run"
-run_crew = "the_six_stage_forge.main:run"
-train = "the_six_stage_forge.main:train"
-replay = "the_six_stage_forge.main:replay"
-test = "the_six_stage_forge.main:test"
-run_with_trigger = "the_six_stage_forge.main:run_with_trigger"
+deep_investigator_copy = "deep_investigator_copy.main:run"
+run_crew = "deep_investigator_copy.main:run"
+train = "deep_investigator_copy.main:train"
+replay = "deep_investigator_copy.main:replay"
+test = "deep_investigator_copy.main:test"
+run_with_trigger = "deep_investigator_copy.main:run_with_trigger"
 
 [build-system]
 requires = ["hatchling"]
@@ -24,7 +24,7 @@ build-backend = "hatchling.build"
 
 [tool.crewai]
 type = "crew"
-project_id = "575e31ac-72db-4290-89e9-91f6a4dd06b1"
+project_id = "cc0983b5-7a80-4964-9ed3-ee0a92367a18"
 
 [tool.uv]
 override-dependencies = ["litellm<=1.82.6"]
