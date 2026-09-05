@@ -1,0 +1,404 @@
+---
+floor_1_research:
+  description: 'You are the first investigative researcher on this case. The user''s investigation request
+    is: {prompt}
+
+
+    Use your FireCrawl tools to begin the investigation:
+
+    1. Start with broad searches to understand the landscape
+
+    2. Identify and scrape the most relevant pages and sources
+
+    3. Crawl key sites where important information may be nested
+
+
+    For every source you gather (search result, scraped page, crawled page), call the
+
+    evidence_log tool with action=''append'', floor_label=''Floor 1 Research'', and content
+
+    containing that source''s URL, title, and the raw text/data you retrieved from it.
+
+    Do this as you go — do not wait until the end. The tool stores it permanently so you
+
+    never need to retype it.
+
+
+    Your final answer should NOT repeat the raw content you already logged. Instead,
+
+    return a short summary: what you searched for, which URLs you logged, and a list of
+
+    promising leads that need deeper investigation.
+
+    '
+  expected_output: A short summary (not a data dump) listing the search angles tried, every URL logged
+    to the evidence log, and a prioritized list of leads for the analyst to review. Raw content itself
+    lives in the evidence log, not in this output.
+  agent: floor_1_investigative_researcher
+floor_1_analysis:
+  description: 'The original investigation request is: {prompt}
+
+
+    First, call the evidence_log tool with action=''read_all'' to review everything the
+
+    Floor 1 Researcher logged. Then critically analyze it:
+
+    1. List everything that has been CONFIRMED with strong source backing (cite the URL)
+
+    2. List everything that is UNCONFIRMED or only partially supported
+
+    3. Identify CONTRADICTIONS between sources
+
+    4. List specific OPEN QUESTIONS that require deeper investigation in the next floor
+
+    5. Assess source quality and credibility
+
+
+    Reference sources by URL/title — do not retype raw scraped text into your answer;
+
+    it is already safe in the evidence log for the final floor to compile.
+
+    '
+  expected_output: A structured evidence block containing Confirmed Facts (each citing its source URL),
+    Unconfirmed Leads with status, Contradictions found, and Open Questions for the next floor. No raw
+    scraped text — cite sources by URL instead of quoting them at length.
+  agent: floor_1_investigative_analyst
+  context:
+  - floor_1_research
+floor_2_research:
+  description: 'You are the Floor 2 researcher. The original investigation request is: {prompt}
+
+
+    You have received the Floor 1 structured evidence block. Focus exclusively on:
+
+    1. The OPEN QUESTIONS identified by the Floor 1 Analyst
+
+    2. The UNCONFIRMED LEADS that need corroboration
+
+    3. New angles or sources not yet explored
+
+
+    Use FireCrawl tools to go deeper. As you gather each source, call evidence_log with
+
+    action=''append'', floor_label=''Floor 2 Research'', and the raw content — don''t wait
+
+    until the end. Your final answer is a short summary of what you searched, which URLs
+
+    you logged, and what remains open — not a repeat of the raw content.
+
+    '
+  expected_output: A short summary of Floor 2's research — search angles tried, URLs logged to the evidence
+    log, and which of Floor 1's open questions were addressed versus still open. No raw content repeated
+    here.
+  agent: floor_2_investigative_researcher
+  context:
+  - floor_1_analysis
+floor_2_analysis:
+  description: 'The original investigation request is: {prompt}
+
+
+    You have the Floor 1 evidence block and the Floor 2 research summary. If you need
+
+    to check the underlying raw sources, call evidence_log with action=''read_all''.
+
+
+    Merge and update the cumulative evidence record:
+
+    1. Cross-reference new Floor 2 findings against Floor 1 confirmed facts
+
+    2. Promote UNCONFIRMED LEADS that are now confirmed by new evidence
+
+    3. Close OPEN QUESTIONS that have been answered
+
+    4. Add any new contradictions found
+
+    5. Update the open questions list with what still remains unresolved
+
+
+    Cite sources by URL. Do not retype raw scraped content — it is preserved in the
+
+    evidence log for the final compilation.
+
+    '
+  expected_output: 'An updated cumulative evidence block: all Confirmed Facts (from both floors) with
+    source URLs, Remaining Unconfirmed Leads, all Contradictions, and Remaining Open Questions for Floor
+    3. No raw content repeated here.'
+  agent: floor_2_investigative_analyst
+  context:
+  - floor_1_analysis
+  - floor_2_research
+floor_3_research:
+  description: 'You are the Floor 3 researcher. The original investigation request is: {prompt}
+
+
+    You have received the Floor 2 cumulative evidence block. By now, obvious sources
+
+    have been explored. Your job is to:
+
+    1. Target the remaining OPEN QUESTIONS with non-obvious search strategies
+
+    2. Look for niche publications, archived pages, indirect references, and lateral connections
+
+    3. Scrape and crawl deeper into sites already identified but not fully explored
+
+    4. Search from different angles — different keywords, perspectives, or regions
+
+
+    Log every source via evidence_log (action=''append'', floor_label=''Floor 3 Research'')
+
+    as you go. Your final answer is a short summary, not a repeat of the raw content.
+
+    '
+  expected_output: A short summary of Floor 3's research — angles tried, URLs logged, and which previous
+    floors' open questions were addressed. No raw content repeated.
+  agent: floor_3_investigative_researcher
+  context:
+  - floor_2_analysis
+floor_3_analysis:
+  description: 'The original investigation request is: {prompt}
+
+
+    You have the Floor 2 cumulative evidence block and the Floor 3 research summary.
+
+    Use evidence_log (action=''read_all'') if you need to check underlying raw sources.
+
+
+    Merge and refine the evidence record:
+
+    1. Integrate Floor 3 findings with the existing evidence
+
+    2. Be ruthless about quality — discard weak or unverifiable claims, strengthen confirmed ones with
+    new corroboration
+
+    3. Resolve any contradictions that can now be resolved
+
+    4. Update the open questions list — keep it lean and focused on only what truly matters
+
+
+    Cite sources by URL rather than retyping raw scraped text.
+
+    '
+  expected_output: 'A refined cumulative evidence block: all Confirmed Facts (all floors) with source
+    URLs and corroboration level, Remaining Unconfirmed Leads (quality-filtered), all Contradictions (resolved
+    and unresolved), and Priority Open Questions for Floor 4. No raw content repeated.'
+  agent: floor_3_investigative_analyst
+  context:
+  - floor_2_analysis
+  - floor_3_research
+floor_4_research:
+  description: 'You are the Floor 4 researcher. The original investigation request is: {prompt}
+
+
+    You have the Floor 3 refined evidence block. You are now a surgical researcher —
+
+    no wide nets. Your job is:
+
+    1. Pick the TOP priority open questions from Floor 3
+
+    2. Design precise, targeted searches to answer them
+
+    3. Scrape specific pages that are likely to hold the answer
+
+    4. Crawl sites deeply if needed to find buried information
+
+    5. Also look for corroborating sources for the most important confirmed facts
+
+
+    Log every source via evidence_log (action=''append'', floor_label=''Floor 4 Research'')
+
+    as you go. Your final answer is a short summary, not the raw content itself.
+
+    '
+  expected_output: A short summary of Floor 4's targeted research — which priority questions were addressed,
+    URLs logged, and outcome. No raw content repeated.
+  agent: floor_4_investigative_researcher
+  context:
+  - floor_3_analysis
+floor_4_analysis:
+  description: 'The original investigation request is: {prompt}
+
+
+    You have the Floor 3 refined evidence block and the Floor 4 research summary. Use
+
+    evidence_log (action=''read_all'') if you need to check underlying raw sources.
+
+
+    Integrate and strengthen:
+
+    1. Merge Floor 4 findings into the cumulative record
+
+    2. Resolve contradictions where Floor 4 provides clarity
+
+    3. Validate new findings against existing confirmed facts
+
+    4. The evidence record should be increasingly solid — raise the bar for what counts as "confirmed"
+
+    5. Keep the open questions list only to what is genuinely unresolved and important
+
+
+    Cite sources by URL rather than retyping raw scraped text.
+
+    '
+  expected_output: 'A mature cumulative evidence block: all Confirmed Facts (all floors) with multi-source
+    corroboration noted, Remaining Unconfirmed Leads, all Contradictions with resolution status, and Final
+    Open Questions for Floor 5. No raw content repeated.'
+  agent: floor_4_investigative_analyst
+  context:
+  - floor_3_analysis
+  - floor_4_research
+floor_5_research:
+  description: 'You are the Floor 5 researcher — the penultimate research pass. The original
+
+    investigation request is: {prompt}
+
+
+    You have the Floor 4 mature evidence block. This is your last major research
+
+    opportunity:
+
+    1. Address any remaining unconfirmed claims
+
+    2. Look for alternative perspectives or dissenting sources that could challenge confirmed facts
+
+    3. Search for any missing corroboration on the most critical confirmed findings
+
+    4. Try completely fresh search angles that haven''t been tried yet
+
+    5. Verify that no important aspect of the original prompt has been overlooked
+
+
+    Log every source via evidence_log (action=''append'', floor_label=''Floor 5 Research'')
+
+    as you go. Your final answer is a short summary, not the raw content itself.
+
+    '
+  expected_output: A short summary of Floor 5's research — angles tried, URLs logged, and which gaps were
+    closed versus still open. No raw content repeated.
+  agent: floor_5_investigative_researcher
+  context:
+  - floor_4_analysis
+floor_5_analysis:
+  description: 'The original investigation request is: {prompt}
+
+
+    You have the Floor 4 evidence block and the Floor 5 research summary. Use
+
+    evidence_log (action=''read_all'') if you need to check underlying raw sources.
+
+
+    Perform near-final synthesis:
+
+    1. Integrate Floor 5 findings into the cumulative record
+
+    2. Make final determinations on remaining unconfirmed leads
+
+    3. Note any irresolvable contradictions honestly
+
+    4. Verify that the evidence record adequately addresses the original prompt in full
+
+    5. Flag any last gaps that Floor 6 must address
+
+
+    Cite sources by URL rather than retyping raw scraped text.
+
+    '
+  expected_output: 'A near-complete comprehensive evidence block: all Confirmed Facts (all floors) with
+    source URLs, Final Unconfirmed Leads with honest status assessment, all Contradictions (resolved and
+    irresolvable), and Last remaining gaps for Floor 6. No raw content repeated.'
+  agent: floor_5_investigative_analyst
+  context:
+  - floor_4_analysis
+  - floor_5_research
+floor_6_research:
+  description: 'You are the Floor 6 researcher — the final research pass. The original
+
+    investigation request is: {prompt}
+
+
+    You have the near-complete Floor 5 evidence block. Your mission:
+
+    1. Address the final gaps flagged by the Floor 5 Analyst
+
+    2. Perform any last verification searches on the most critical confirmed facts
+
+    3. Capture any final sources needed to make the evidence airtight
+
+    4. Leave no flagged gap unaddressed
+
+
+    Log every source via evidence_log (action=''append'', floor_label=''Floor 6 Research'')
+
+    as you go. Your final answer is a short summary, not the raw content itself.
+
+    '
+  expected_output: A short summary of Floor 6's final research pass — which gaps were addressed, URLs
+    logged, and any that remain genuinely unresolved. No raw content repeated — this is the last input
+    before the final evidence dump is compiled.
+  agent: floor_6_investigative_researcher
+  context:
+  - floor_5_analysis
+floor_6_final_evidence_dump:
+  description: 'You are the final analyst in this 6-floor investigative pipeline. The original
+
+    investigation request was: {prompt}
+
+
+    First, call evidence_log with action=''read_all'' to retrieve the complete raw
+
+    evidence log accumulated across all 6 floors — this is your source of truth for
+
+    raw content, so you never need to reconstruct it from memory.
+
+
+    You also have the Floor 5 cumulative evidence block and the Floor 6 research
+
+    summary for the structured findings (confirmed facts, contradictions, etc.).
+
+
+    Compile the DEFINITIVE EVIDENCE DUMP:
+
+    1. Integrate all findings from all 6 floors
+
+    2. Include EVERY confirmed fact with its source URL(s) and corroboration count
+
+    3. Include the raw evidence log content in the RAW SCRAPED CONTENT section, verbatim from what read_all
+    returned — do not paraphrase or invent additions to it
+
+    4. Include ALL URLs visited across all floors
+
+    5. Include ALL unconfirmed leads with their final status
+
+    6. Include ALL contradictions found and their resolution status
+
+    7. Include the complete investigation trail (what each floor found and contributed)
+
+    8. Do NOT summarize, conclude, or interpret the confirmed facts — present them, sourced
+
+
+    Organize it clearly but omit nothing that read_all returned.
+
+    '
+  expected_output: 'The complete investigative evidence dump for: {prompt}
+
+
+    Sections:
+
+    - INVESTIGATION TRAIL (floor-by-floor summary of what was found)
+
+    - CONFIRMED FACTS (each with source URLs, quotes, corroboration count)
+
+    - UNCONFIRMED LEADS (each with status and attempted sources)
+
+    - CONTRADICTIONS (each with conflicting sources listed)
+
+    - COMPLETE URL INVENTORY (every URL visited across all 6 floors)
+
+    - RAW SCRAPED CONTENT (the full evidence_log content, exactly as returned by read_all)
+
+    - OPEN QUESTIONS (anything that could not be resolved)
+
+    '
+  agent: floor_6_investigative_analyst
+  context:
+  - floor_5_analysis
+  - floor_6_research
